@@ -1,0 +1,36 @@
+debug {
+    gcc "Source Files/main.c" "Source Files/shader.c"
+    -o "Executables/main"
+    -I "Dependencies/glew-2.1.0/include"
+    -I "Dependencies/SDL2-2.0.9/i686-w64-mingw32/include"
+    -L "Dependencies/glew-2.1.0/lib/Release/Win32"
+    -L "Dependencies/SDL2-2.0.9/i686-w64-mingw32/lib"
+    -lmingw32
+    -lSDL2main
+    -lSDL2
+    -lglew32
+    -I "C:\MinGW\include"
+    -L "C:\MinGW\lib"
+    -lopengl32
+    -lglu32
+}
+
+run {
+    gcc "Source Files/main.c"
+    -o "Executables/main"
+    -I "Dependencies/glew-2.1.0/include"
+    -I "Dependencies/SDL2-2.0.9/i686-w64-mingw32/include"
+    -L "Dependencies/glew-2.1.0/lib/Release/Win32"
+    -L "Dependencies/SDL2-2.0.9/i686-w64-mingw32/lib"
+    -lmingw32
+    -lSDL2main
+    -lSDL2
+    -lglew32
+    -Wl,--subsystem,windows
+    -w
+    -mwindows
+    -I "C:\MinGW\include"
+    -L "C:\MinGW\lib"
+    -lopengl32
+    -lglu32
+}
