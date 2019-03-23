@@ -1,7 +1,6 @@
 #include "../HeaderFiles/shader.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include <errno.h>
 
 GLuint ShaderCompile(char* shaderSource, GLenum type){
     // create id of the shader
@@ -26,7 +25,8 @@ GLuint ShaderCompile(char* shaderSource, GLenum type){
         // write error message to string
         glGetShaderInfoLog(id, length, &length, message);
         // print error message
-        printf("Shader compilation error:\n%s", message);
+        printf("--------- Shader compilation error -----------\n%s\nErro \
+        r code: %x\n================================\n\n", message, result);
         // delete string containing message
         free(message);
     }
@@ -42,7 +42,7 @@ void ShaderParse(char* filename, char* contents, int size_t){
 
     // checking if file is opened
     if (file == NULL){
-        printf("File %s not found\n", filename);
+        printf("[ERROR] File %s not found.\n", filename);
         return;
     }
     // clearing string
@@ -51,7 +51,6 @@ void ShaderParse(char* filename, char* contents, int size_t){
     int counter = 1;
     // strnig for storing read chars
     char current[2];
-
     // while there are chars in the file and counter is less than maxSize
     while(fgets(current, 2, file) && counter < size_t){
 
@@ -61,22 +60,26 @@ void ShaderParse(char* filename, char* contents, int size_t){
         counter ++;
     }
     // if maxSize was not big enough
-    if (!(counter < size_t)) printf("contents string not big enough\n");
+    if (!(counter < size_t)) printf("[ERROR] Contents string not big enough.\n");
+
     // close file
     fclose(file);
 }
 
-void ShaderCreate(shader* sh, char* vertexShader, char* fragmentShader,
+void ShaderCreate(SHADER* sh, char* vertexShader, char* fragmentShader,
                   int size_t){
     // vertexShader contains filepath to file to be read.
     // vertexShader will contain contents of the file. Set size_t accordingly.
+    printf("[INFO] Vertex Shader \"%s\" compiling...\n", vertexShader);
     ShaderParse(vertexShader, vertexShader, size_t);
     // fragmentShader contains filepath to file to be read.
     // fragmentShader will contain contents of the file. Set size_t
     // accordingly.
+    printf("[INFO] Fragment Shader \"%s\" compiling...\n", fragmentShader);
     ShaderParse(fragmentShader, fragmentShader, size_t);
 
     GLuint program = glCreateProgram();
+
     GLuint vertShader = ShaderCompile(vertexShader, GL_VERTEX_SHADER);
     GLuint fragShader = ShaderCompile(fragmentShader, GL_FRAGMENT_SHADER);
 
@@ -89,14 +92,16 @@ void ShaderCreate(shader* sh, char* vertexShader, char* fragmentShader,
     //glDeleteShader(vertShader);
     //glDeleteShader(fragShader);
 
+    printf("[INFO] Shaders successfully loaded...\n");
+
     sh -> shaderID = program;
 }
 
-void ShaderDestroy(shader* sh){
+void ShaderDestroy(SHADER* sh){
     glDeleteProgram(sh -> shaderID);
 }
 
-void ShaderBind(shader* sh){
+void ShaderBind(SHADER* sh){
     glUseProgram(sh -> shaderID);
 }
 

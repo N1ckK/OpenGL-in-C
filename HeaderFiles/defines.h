@@ -1,22 +1,26 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
+#include "../HeaderFiles/launch_options.h"
+
+
 // Vertex struct for storing points
 struct Vertex{
-    float x;
-    float y;
-    float z;
+    float x, y, z;
+    float r, g, b, a;
 };
+
 
 // Vertexbuffer
 typedef struct VertexBuffer{
     GLuint bufferID;
     GLuint vao;
-} vertexbuffer;
+} VERTEX_BUFFER;
+
 
 // shader
 typedef struct Shader{
     GLuint shaderID;
-} shader;
+} SHADER;
 
 #endif

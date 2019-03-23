@@ -34,3 +34,15 @@ run {
     -lopengl32
     -lglu32
 }
+
+debug_stal {
+    gcc "Source Files/main_standalone.c"
+    "Source Files/opengl.c" "Source Files/shader.c"
+    -o "Executables/main_stal"
+    -lmingw32
+    -I "C:\MinGW\include"
+    -L "C:\MinGW\lib"
+    -lopengl32
+    -lglu32
+    -lgdi32
+}
