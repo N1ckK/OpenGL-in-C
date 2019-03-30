@@ -15,10 +15,9 @@
 
 //#include "../HeaderFiles/defines.h"
 #include "../HeaderFiles/vertex_buffer.h"
+#include "../HeaderFiles/index_buffer.h"
 #include "../HeaderFiles/shader.h"
 
-// for mandelbrot fractal
-//#include "../Resources/Mandelbrot_OpenGL/mandelbrot.h"
 
 int main(int argc, char* argv[]){
 
@@ -44,20 +43,20 @@ int main(int argc, char* argv[]){
     int flags = SDL_WINDOW_OPENGL;
 
 // borderless window
-#ifdef BORDERLESS_WINDOW
-    printf("Launch Option: BORDERLESS_WINDOW\n");
+#if BORDERLESS_WINDOW
+    printf("[INFO] Launch Option: BORDERLESS_WINDOW 1\n");
     flags = flags | SDL_WINDOW_BORDERLESS;
 #endif
 
 // FULLSCREEN
-#ifdef FULLSCREEN_WINDOW
-    printf("Launch Option: FULLSCREEN_WINDOW\n");
+#if FULLSCREEN_WINDOW
+    printf("[INFO] Launch Option: FULLSCREEN_WINDOW 1\n");
     flags = flags | SDL_WINDOW_FULLSCREEN_DESKTOP;
 #endif
 
     // Creating the window, title, x_window, y_window, width, height, flags
-    window = SDL_CreateWindow("Title", SDL_WINDOWPOS_CENTERED,
-                                       SDL_WINDOWPOS_CENTERED,
+    window = SDL_CreateWindow("C OpenGL", SDL_WINDOWPOS_CENTERED,
+                                        SDL_WINDOWPOS_CENTERED,
                               WIDTH_WINDOW, HEIGHT_WINDOW, flags);
 
     // Creating context for window
@@ -80,29 +79,58 @@ int main(int argc, char* argv[]){
         {-0.5, -0.5, 0.0,   1.0, 0.0, 0.0, 1.0},
         {-0.5,  0.5, 0.0,   0.0, 1.0, 0.0, 1.0},
         { 0.5, -0.5, 0.0,   0.0, 0.0, 1.0, 1.0},
-        { 0.5,  0.5, 0.0,   1.0, 0.0, 0.0, 1.0}
+        { 0.5,  0.5, 0.0,   1.0, 0.5, 0.5, 1.0}
     };
     int numVertices = 4;
 
-    // for mandelbrot fractal
-    // struct Vertex* vertices = calcVerts(800, 600);
-    // int numVertices = 800 * 600;
+    // indices
+    unsigned int indices[] = {
+        0, 1, 2,
+        1, 2, 3
+    };
+    unsigned int numIndices = 6;
+
+    
+    // declare INDEX_BUFFER
+    INDEX_BUFFER ibuffer;
+    // create index buffer
+    IndexBufferCreate(&ibuffer, indices, numIndices);
+    // unbind index buffer
+    IndexBufferUnbind();
 
     // create Vertex Buffer
     VERTEX_BUFFER vbuffer;
+    // create Vetexbuffer
     VertexBufferCreate(&vbuffer, vertices, numVertices);
+    // vertexbuffer bind
     VertexBufferUnbind();
 
+
+    // declare shader
     SHADER shader;
-    char vertexShader[256] = "Source Files/shaders/basic330.vert";
-    char fragmentShader[256] = "Source Files/shaders/basic330.frag";
-    int size_t = 256;
-    ShaderCreate(&shader, vertexShader, fragmentShader, size_t);
+    char vertexShader[256];
+    char fragmentShader[256];
+
+// shader version
+#if SHADER_VERSION == 330
+    printf("[INFO] Launch Option: SHADER_VERSION 330\n");
+    strcpy(vertexShader, "Source Files/shaders/basic330.vert");
+    strcpy(fragmentShader, "Source Files/shaders/basic330.frag");
+#elif SHADER_VERSION == 120
+    printf("[INFO] Launch Option: SHADER_VERSION 120\n");
+    strcpy(vertexShader, "Source Files/shaders/basic120.vert");
+    strcpy(fragmentShader, "Source Files/shaders/basic120.frag");
+#endif
+
+    // create shader
+    ShaderCreate(&shader, vertexShader, fragmentShader, sizeof(vertexShader));
     ShaderBind(&shader);
 
     // for timing
     int perfCounterFreq = SDL_GetPerformanceFrequency();
     int startCounter = SDL_GetPerformanceCounter();
+    int endCounter, counterElapsed;
+    unsigned short fps;
     float delta = 0.0;
 
     // Window loop
@@ -110,7 +138,7 @@ int main(int argc, char* argv[]){
 
     while(running){
         // specifies color with with the screen should be cleared
-        glClearColor(0.0, 0.0, 0.0, 1.0);
+        glClearColor(0.1, 0.1, 0.1, 1.0);
         // clears the screen
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -119,11 +147,17 @@ int main(int argc, char* argv[]){
         //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         // bind to buffer
-        VertexBufferBind(&vbuffer);
-        // draw binded buffer, mode, start, count of vertices
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, numVertices);
+        VertexBufferBind(vbuffer);
+        IndexBufferBind (ibuffer);
+
+        // draw binded buffer, mode, start, count of vertices (without indexbuffer)
+        //glDrawArrays(GL_TRIANGLE_STRIP, 0, numVertices);
+        // draw (with indexbuffer): mode, amount, buffer (already bound)
+        glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
+
         // unbind buffer
         VertexBufferUnbind();
+        IndexBufferUnbind();
 
         // switch buffers (doublebuffering)
         SDL_GL_SwapWindow(window);
@@ -141,11 +175,10 @@ int main(int argc, char* argv[]){
         }
 
         // time calculations
-        int endCounter = SDL_GetPerformanceCounter();
-        int counterElapsed = endCounter - startCounter;
+        endCounter = SDL_GetPerformanceCounter();
+        counterElapsed = endCounter - startCounter;
         delta = (float) counterElapsed / (float) perfCounterFreq;
-        unsigned short fps = (short int)((float) perfCounterFreq /
-                                         (float) counterElapsed);
+        fps = (short int)((float) perfCounterFreq / (float) counterElapsed);
         startCounter = endCounter;
     }
     return 0;

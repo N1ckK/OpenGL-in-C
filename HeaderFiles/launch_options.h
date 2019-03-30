@@ -4,9 +4,9 @@
     Else if STANDALONE is 0 the Project will use GLEW and SDL to Compile the
     Project
 */
-#define STANDALONE 0
+#define STANDALONE 1
 
-//=================================================================================
+// ============================================================================
 
 /*
     Determines the Width of the window.
@@ -18,7 +18,24 @@
 */
 #define HEIGHT_WINDOW 600
 
-//=================================================================================
+// ============================================================================
 
-//#define FULLSCREEN_WINDOW 1
-//#define BORDERLESS_WINDOW 1
+/*
+    Determines wheather the window should appear in fullscreen.
+*/
+#define FULLSCREEN_WINDOW 0
+
+/*
+    Determines wheather the window should appear borderless.
+*/
+#define BORDERLESS_WINDOW 0
+
+// ============================================================================
+
+/*
+    Specifies the shader Version to be used. Supported Versions are:
+    120 and 330. 330 is recommended.
+*/
+#define SHADER_VERSION 330
+
+// ============================================================================

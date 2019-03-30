@@ -11,8 +11,8 @@
 
 #include "defines.h"
 
-
-void VertexBufferCreate(VERTEX_BUFFER* vb, void* vertices, int numVertices){
+void VertexBufferCreate(VERTEX_BUFFER* vb, void* vertices,
+                        unsigned int numVertices){
     // Create Vertex Array
     glGenVertexArrays(1, &(vb -> vao));
     // Bind Vertex Array
@@ -43,15 +43,18 @@ void VertexBufferCreate(VERTEX_BUFFER* vb, void* vertices, int numVertices){
     glBindVertexArray(0);
 }
 
+
 void VertexBufferDestory(VERTEX_BUFFER* vb){
     // delete vertexbuffer vb
     glDeleteBuffers(1, &(vb -> bufferID));
 }
 
-void VertexBufferBind(VERTEX_BUFFER* vb){
+
+void VertexBufferBind(VERTEX_BUFFER vb){
     // bind array buffer to vb
-    glBindVertexArray(vb -> vao);
+    glBindVertexArray(vb.vao);
 }
+
 
 void VertexBufferUnbind(){
     // unbind array buffer

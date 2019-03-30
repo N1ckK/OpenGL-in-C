@@ -34,7 +34,7 @@ GLuint ShaderCompile(char* shaderSource, GLenum type){
     return id;
 }
 
-void ShaderParse(char* filename, char* contents, int size_t){
+void ShaderParse(char* filename, char* contents, unsigned int buffer_size){
     // create file object
     FILE* file;
     // open the file by creating pointer
@@ -52,7 +52,7 @@ void ShaderParse(char* filename, char* contents, int size_t){
     // strnig for storing read chars
     char current[2];
     // while there are chars in the file and counter is less than maxSize
-    while(fgets(current, 2, file) && counter < size_t){
+    while(fgets(current, 2, file) && counter < buffer_size){
 
         if (feof(file)) break;
         // add read string to contents
@@ -60,23 +60,25 @@ void ShaderParse(char* filename, char* contents, int size_t){
         counter ++;
     }
     // if maxSize was not big enough
-    if (!(counter < size_t)) printf("[ERROR] Contents string not big enough.\n");
+    if (!(counter < buffer_size)) printf("[ERROR] Contents string not big enough.\n");
 
     // close file
     fclose(file);
 }
 
 void ShaderCreate(SHADER* sh, char* vertexShader, char* fragmentShader,
-                  int size_t){
+                  unsigned int buffer_size){
+
     // vertexShader contains filepath to file to be read.
-    // vertexShader will contain contents of the file. Set size_t accordingly.
+    // vertexShader will contain contents of the file. Set buffer_size
+    // accordingly.
     printf("[INFO] Vertex Shader \"%s\" compiling...\n", vertexShader);
-    ShaderParse(vertexShader, vertexShader, size_t);
+    ShaderParse(vertexShader, vertexShader, buffer_size);
     // fragmentShader contains filepath to file to be read.
-    // fragmentShader will contain contents of the file. Set size_t
+    // fragmentShader will contain contents of the file. Set buffer_size
     // accordingly.
     printf("[INFO] Fragment Shader \"%s\" compiling...\n", fragmentShader);
-    ShaderParse(fragmentShader, fragmentShader, size_t);
+    ShaderParse(fragmentShader, fragmentShader, buffer_size);
 
     GLuint program = glCreateProgram();
 

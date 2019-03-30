@@ -10,6 +10,7 @@
 #include "../HeaderFiles/opengl.h"
 #include "../HeaderFiles/defines.h"
 #include "../HeaderFiles/vertex_buffer.h"
+#include "../HeaderFiles/index_buffer.h"
 #include "../HeaderFiles/shader.h"
 
 
@@ -50,11 +51,13 @@ int main(int argc, char* argv[]){
                 CW_USEDEFAULT, CW_USEDEFAULT, WIDTH_WINDOW, HEIGHT_WINDOW,
                 0, 0, hInstance, 0);
 
-#ifdef BORDERLESS_WINDOW
+#if BORDERLESS_WINDOW
+    printf("[INFO] Launch Option: BORDERLESS_WINDOW 1\n");
     SetWindowLong(hwnd, GWL_STYLE, 0);
 #endif
 
-#ifdef FULLSCREEN_WINDOW
+#if FULLSCREEN_WINDOW
+    printf("[INFO] Launch Option: FULLSCREEN_WINDOW 1\n");
     RECT rect;
     if(!GetWindowRect(GetDesktopWindow(), &rect)){
         printf("[Error] Could not get Screen dimensions\n");
@@ -102,29 +105,53 @@ int main(int argc, char* argv[]){
     struct Vertex vertices[] = {
         // x     y    z      r    g    b    a
         {-0.5, -0.5, 0.0,   1.0, 0.0, 0.0, 1.0},
-        { 0.0,  0.5, 0.0,   0.0, 1.0, 0.0, 1.0},
-        { 0.5, -0.5, 0.0,   0.0, 0.0, 1.0, 1.0}
+        {-0.5,  0.5, 0.0,   0.0, 1.0, 0.0, 1.0},
+        { 0.5, -0.5, 0.0,   0.0, 0.0, 1.0, 1.0},
+        { 0.5,  0.5, 0.0,   1.0, 0.5, 0.5, 1.0}
     };
-    int numVertices = 3;
+    unsigned int numVertices = 4;
+
+    // indices
+    unsigned int indices[] = {
+        0, 1, 2,
+        1, 2, 3
+    };
+    unsigned int numIndices = 6;
+
+
+    // declare INDEX_BUFFER
+    INDEX_BUFFER ibuffer;
+    // create index buffer
+    IndexBufferCreate(&ibuffer, indices, numIndices);
+    // unbind index buffer
+    IndexBufferUnbind();
 
     // create Vertex Buffer
     VERTEX_BUFFER vbuffer;
     VertexBufferCreate(&vbuffer, vertices, numVertices);
     VertexBufferUnbind();
 
+
     // creating shader;
     SHADER shader;
-    char vertexShader[256] = "Source Files/shaders/basic330.vert";
-    char fragmentShader[256] = "Source Files/shaders/basic330.frag";
-    int size_t = 256;
-    ShaderCreate(&shader, vertexShader, fragmentShader, size_t);
+    char vertexShader[256];
+    char fragmentShader[256];
+
+#if SHADER_VERSION == 330
+    printf("[INFO] Launch Option: SHADER_VERSION 330\n");
+    strcpy(vertexShader, "Source Files/shaders/basic330.vert");
+    strcpy(fragmentShader, "Source Files/shaders/basic330.frag");
+#elif SHADER_VERSION == 120
+    printf("[INFO] Launch Option: SHADER_VERSION 120\n");
+    strcpy(vertexShader, "Source Files/shaders/basic120.vert");
+    strcpy(fragmentShader, "Source Files/shaders/basic120.frag");
+#endif
+
+    ShaderCreate(&shader, vertexShader, fragmentShader, sizeof(vertexShader));
     ShaderBind(&shader);
 
     // Window loop
     bool running = true;
-
-    // time
-    //printf("%lu\n", GetTickCount64());
 
     clock_t start, stop, delta = 0;
     unsigned short frames = 0;
@@ -145,11 +172,16 @@ int main(int argc, char* argv[]){
         glClear(GL_COLOR_BUFFER_BIT);
 
         // bind to buffer
-        VertexBufferBind(&vbuffer);
+        VertexBufferBind(vbuffer);
+        IndexBufferBind(ibuffer);
         // draw binded buffer, mode, start, count of vertices
-        glDrawArrays(GL_TRIANGLES, 0, numVertices);
+
+        //glDrawArrays(GL_TRIANGLE_STRIP, 0, numVertices);
+        glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
+
         // unbind buffer
         VertexBufferUnbind();
+        IndexBufferUnbind(ibuffer);
 
         // switch buffers (doublebuffering)
         SwapBuffers(hdc);
@@ -158,9 +190,8 @@ int main(int argc, char* argv[]){
         delta += stop - start;
         frames ++;
         if ((delta / (double) CLOCKS_PER_SEC) > 1){
-            printf("Frames: %d\n", frames);
-            frames = 0;
-            delta = 0;
+            printf("[INFO] FPS: %d\n", frames);
+            frames = delta = 0;
         }
 
     }

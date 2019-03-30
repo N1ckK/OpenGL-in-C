@@ -15,10 +15,10 @@
 
 GLuint ShaderCompile(char* shaderSource, GLenum type);
 
-void ShaderParse(char* filename, char* contents, int size_t);
+void ShaderParse(char* filename, char* contents, unsigned int buffer_size);
 
 void ShaderCreate(SHADER* sh, char* vertexShaderFilename,
-                              char* fragmentShaderFilename, int size_t);
+                  char* fragmentShaderFilename, unsigned int buffer_size);
 
 void ShaderDestroy(SHADER* sh);
 
